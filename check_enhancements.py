@@ -57,7 +57,8 @@ def run():
 
         assert restored.persist()
         closed_text = recovered.text()
-        restored.close_tab(0)
+        with patch.object(QMessageBox, "warning", return_value=QMessageBox.StandardButton.Discard):
+            restored.close_tab(0)
         archives = list((store.root / "closed-tabs").glob("*.json"))
         assert len(archives) == 1
         assert json.loads(archives[0].read_text())["text"] == closed_text

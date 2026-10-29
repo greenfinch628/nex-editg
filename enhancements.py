@@ -587,7 +587,7 @@ class Preferences(QDialog):
                 width.setCurrentText(str(self.values["tab_width"]))
                 self.fields["tab_width"] = width
                 form.addRow("Default tab width", width)
-                for key, label in [("spaces", "Insert spaces instead of tabs"), ("prompt_on_close", "Ask to save when closing (recovery is always kept)")]:
+                for key, label in [("spaces", "Insert spaces instead of tabs"), ("prompt_on_close", "Ask to save when closing the app (recovery is always kept)")]:
                     field = QCheckBox(label)
                     field.setChecked(self.values[key])
                     self.fields[key] = field
@@ -1077,11 +1077,22 @@ class AppWindow(Window):
         except (OSError, ValueError) as error:
             self.report("Could not close workspace", error)
 
-    def confirm_close(self, editor):
+    def confirm_close(self, editor, *, closing_tab=False):
         if not self.persist():
             self.report("Recovery could not be written; document kept open", self.recovery_error)
             return False
-        if not editor.isModified() or not self.options["prompt_on_close"]:
+        if not editor.isModified():
+            return True
+        if closing_tab:
+            answer = QMessageBox.warning(
+                self, "Unsaved changes", f"Save changes to {editor.title}?",
+                QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
+                QMessageBox.StandardButton.Save,
+            )
+            if answer == QMessageBox.StandardButton.Save:
+                return self.save_editor(editor)
+            return answer == QMessageBox.StandardButton.Discard
+        if not self.options["prompt_on_close"]:
             return True
         prompt = QMessageBox(self)
         prompt.setWindowTitle("Unsaved changes")
@@ -1100,7 +1111,7 @@ class AppWindow(Window):
         if editor is not None and self.is_welcome(editor):
             self.set_welcome_enabled(False)
             return
-        if editor is None or not self.confirm_close(editor):
+        if editor is None or not self.confirm_close(editor, closing_tab=True):
             return
         try:
             self.store.archive(self.document_record(editor))
