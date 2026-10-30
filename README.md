@@ -1,5 +1,12 @@
 # nex-editg
 
+## Authoritative repository
+
+Use [GitHub](https://github.com/greenfinch628/nex-editg) and its `main` branch
+for installation on other PCs. Scopuli Gitea is the backup mirror. Historical
+release tags are retained for reference; use the current package instructions
+below when installing.
+
 ![nex-editg on Fedora showing the Welcome script, tabs, folder sidebar and Git status](assets/screenshots/nex-editg-fedora.png)
 
 A simple text editor inspired by GNOME gedit that is pleasant to use.

@@ -11,6 +11,8 @@ Create a new application/version heading for each release. The initial baseline
 contains only the current heading; baseline preparation is intentionally omitted.
 Package-manager changelogs retain their required native formats and history.
 
-All source commits, branches, release tags, packaging recipes, and release
-artifacts must be synchronized to both GitHub and Scopuli Gitea. A release is
+GitHub (`origin`) is the authoritative repository; `main` is the installation
+branch. Scopuli Gitea (`gitea`) is a backup mirror. Keep published source commits,
+release tags, packaging recipes, and release artifacts synchronized to both.
+Delete merged feature branches from both hosts after completion. A release is
 complete only after both destinations have been verified. Do not push to upstream.

@@ -1,5 +1,7 @@
 # nex-editg - 0.1.2
 
+- 2026-10-30T00:51:33Z — Changed: Designate GitHub main as authoritative and Gitea as its backup mirror; clarify installation source and merged-branch cleanup.
+
 - 2026-10-29T13:57:08Z — Changed: Installed the tab-close save prompt in the local nex-editg application. Verified Save, Discard, and Cancel for named and unnamed tabs, canceled and failed saves, and unchanged unsaved-session restoration after closing the app.
 - 2026-10-29T13:53:34Z — Fixed: Always offer Save, Discard, and Cancel when closing a changed named or unnamed tab; preserve app-close preferences and unsaved session restoration.
 - 2026-10-17T14:11:15Z — Added: Version 0.1.2 RPM, DEB, and source packaging for strict insertion-position spelling suggestions. Corrected the older Scopuli desktop shortcut to use the packaged launcher. Work assisted by OpenAI Codex.
