@@ -1,5 +1,6 @@
 # nex-editg - 0.1.3
 
+- 2026-10-31T21:39:12Z — Changed: Installed the About version update locally in /opt/nex-editg and updated the local source checkout.
 - 2026-10-31T21:28:41Z — Added: Display the application version in About using the existing version metadata.
 - 2026-10-31T15:16:42Z — Fixed: Rebuild Fedora 44 RPM and Ubuntu 26.04 DEB packages with the tab-close Save, Discard, and Cancel fix, including failed/canceled saves and unchanged app-close session recovery.
 
