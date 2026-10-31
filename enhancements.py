@@ -18,7 +18,7 @@ from PyQt6.QtWidgets import (
     QMessageBox, QPushButton, QTabWidget, QToolButton, QHBoxLayout, QVBoxLayout, QWidget,
 )
 from PyQt6.Qsci import QsciLexerBash, QsciLexerMarkdown
-from editor import Editor, Tabs, Window, STYLE
+from editor import APP_VERSION, Editor, Tabs, Window, STYLE
 
 # GTK's standard chooser palette, arranged in the same columns as Ptyxis-tc.
 # Preserve the original five rows and prepend a softer tint of the top row.
@@ -1538,7 +1538,7 @@ class AppWindow(Window):
         QMessageBox.information(self, "nex-editg Editing", "Alt-drag selects columns. Ctrl+Shift+T restores a closed-tab recovery copy.\n\nBottom controls select language, tab width, spaces and spelling. Right-click a tab for its color.\n\nUnsaved text is kept in independent recovery storage. Closing never writes edits to original files unless you choose Save.")
 
     def about(self):
-        QMessageBox.information(self, "About nex-editg", "nex-editg\nQt 6 Widgets + QScintilla\nIndependent settings, workspace sessions and recovery.\n" + str(self.store.root))
+        QMessageBox.information(self, "About nex-editg", f"nex-editg {APP_VERSION}\nQt 6 Widgets + QScintilla\nIndependent settings, workspace sessions and recovery.\n" + str(self.store.root))
 
 
 def launch(app, transient=False, root_override=None, paths=()):

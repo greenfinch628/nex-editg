@@ -16,6 +16,9 @@ from PyQt6.QtWidgets import (
 from PyQt6.Qsci import QsciScintilla
 
 
+APP_VERSION = Path(__file__).resolve().with_name("VERSION").read_text().strip()
+
+
 STYLE = """
 QMainWindow, QWidget#root { background: #e0e0e0; color: #202020; }
 QWidget#header { background: #d8d8d8; border-bottom: 1px solid #bcbcbc; }
@@ -640,7 +643,7 @@ class Window(QMainWindow):
         QMessageBox.information(self, "Editing", "Hold Alt and drag to select a rectangle. Type, copy, cut or paste in the selection; Escape exits block mode.\n\nCtrl+N/O/S/W: New/Open/Save/Close. Ctrl+F: Find. F9: Sidebar.\n\nThis prototype has no automatic recovery yet. Save documents before leaving them.")
 
     def about(self):
-        QMessageBox.information(self, "About nex-editg", "nex-editg interface prototype\nQt 6 Widgets + QScintilla\nIndependent from the legacy gedit installation.\n\nWorkspace sessions and recovery await interface review.")
+        QMessageBox.information(self, "About nex-editg", f"nex-editg {APP_VERSION} interface prototype\nQt 6 Widgets + QScintilla\nIndependent from the legacy gedit installation.\n\nWorkspace sessions and recovery await interface review.")
 
     def report(self, title, error):
         QMessageBox.critical(self, title, str(error))
