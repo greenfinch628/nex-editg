@@ -1,3 +1,7 @@
+# nex-editg - 0.1.3
+
+- 2026-10-31T15:16:42Z — Fixed: Rebuild Fedora 44 RPM and Ubuntu 26.04 DEB packages with the tab-close Save, Discard, and Cancel fix, including failed/canceled saves and unchanged app-close session recovery.
+
 # nex-editg - 0.1.2
 
 - 2026-10-30T00:51:33Z — Changed: Designate GitHub main as authoritative and Gitea as its backup mirror; clarify installation source and merged-branch cleanup.

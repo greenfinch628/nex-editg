@@ -1,6 +1,6 @@
 # Linux packages
 
-Version 0.1.2 includes the tab color chooser and strict insertion-position spelling click behavior. Build RPMs on Fedora 44 x86_64
+Version 0.1.3 includes the tab-close Save/Discard/Cancel fix, the tab color chooser, and strict insertion-position spelling click behavior. Build RPMs on Fedora 44 x86_64
 and DEBs on Ubuntu 26.04 amd64, using Python 3.14 and pip:
 
     python3 packaging/build.py rpm
