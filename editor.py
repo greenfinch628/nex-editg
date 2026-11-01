@@ -66,7 +66,9 @@ class Editor(QsciScintilla):
         self.setMarginType(0, self.MarginType.NumberMargin)
         self.setMarginLineNumbers(0, True)
         self.setMarginWidth(0, 54)
-        self.setMarginWidth(1, 0)
+        self.setMarginWidth(1, 3)
+        self.SendScintilla(self.SCI_SETMARGINTYPEN, 1, self.SC_MARGIN_BACK)
+        self.SendScintilla(self.SCI_SETMARGINBACKN, 1, QColor("#ffffff"))
         self.setMarginWidth(2, 0)
         self.setTabWidth(2)
         self.setIndentationsUseTabs(False)
@@ -76,12 +78,12 @@ class Editor(QsciScintilla):
         self.setSelectionBackgroundColor(QColor("#c9def7"))
         self.setSelectionForegroundColor(QColor("#000000"))
         self.setCaretForegroundColor(QColor("#000000"))
-        self.SendScintilla(self.SCI_SETMARGINLEFT, 10)
         self.SendScintilla(self.SCI_SETADDITIONALSELECTIONTYPING, 1)
         self.SendScintilla(self.SCI_SETMULTIPLESELECTION, 1)
         self.SendScintilla(self.SCI_SETVIRTUALSPACEOPTIONS, self.SCVS_RECTANGULARSELECTION)
         self.SendScintilla(self.SCI_SETMULTIPASTE, self.SC_MULTIPASTE_EACH)
         self.SendScintilla(self.SCI_SETADDITIONALCARETFORE, QColor("#3584e4"))
+        self.SendScintilla(self.SCI_SETMARGINLEFT, 10)
 
     def mousePressEvent(self, event):
         # QScintilla's Linux backend hardcodes Ctrl for the initial block click;
