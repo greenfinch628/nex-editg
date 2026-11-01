@@ -1,6 +1,7 @@
-# nex-editg - 0.1.4
+# nex-editg - 0.1.5
 - 2026-11-01T12:51:12Z - Added 3-pixel white spacing between the line-number gutter and editor text. 
 
+# nex-editg - 0.1.4
 
 # nex-editg - 0.1.3
 
