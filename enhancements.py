@@ -137,7 +137,7 @@ class TabColorDialog(QDialog):
         layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(6)
         palettes = QHBoxLayout()
-        palettes.setSpacing(12)
+        palettes.setSpacing(18)
         self.active_palette = TabColorPalette(initial, active_custom, self)
         self.inactive_palette = None
         for label, palette in [("Active Tab Color", self.active_palette)]:
@@ -148,6 +148,10 @@ class TabColorDialog(QDialog):
             column.addStretch()
             palettes.addLayout(column)
         if inactive is not None:
+            divider = QWidget()
+            divider.setFixedWidth(1)
+            divider.setStyleSheet("background-color: #bcbcbc;")
+            palettes.addWidget(divider)
             self.inactive_palette = TabColorPalette(inactive, inactive_custom, self)
             column = QVBoxLayout()
             column.setSpacing(5)

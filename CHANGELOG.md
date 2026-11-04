@@ -1,5 +1,7 @@
 # nex-editg - 0.1.6
 
+- 2026-11-04T22:57:31Z — Changed: Add wider spacing and a subtle vertical divider between the active and inactive tab color palettes.
+
 - 2026-11-04T22:45:50Z — Added: Independent active and inactive tab color palettes with compact swatches, selection checkmarks, and separately saved custom colors. Preserve legacy tab colors and restore both colors with sessions and workspaces.
 
 # nex-editg - 0.1.5
