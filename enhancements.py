@@ -36,50 +36,20 @@ def tab_color_palette():
                for value in TAB_COLOR_ROWS[0]]
     return [lighter, *[list(row) for row in TAB_COLOR_ROWS]]
 
-class TabColorDialog(QDialog):
-    def __init__(self, initial, parent=None):
+CUSTOM_TAB_COLORS = ("#141414", "#f6f5f4", "#e5e5e5", "#c0c0c0")
+
+class TabColorPalette(QWidget):
+    def __init__(self, initial, custom_colors=None, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Tab Background Color")
-        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
-        self.setObjectName("tabColorChooser")
-        self.setStyleSheet("""
-            QDialog#tabColorChooser { background: #e8e8e8; border: 1px solid #38383c; border-radius: 14px; }
-            QDialog#tabColorChooser QLabel { color: #202020; background: transparent; border: none; font-size: 18px; }
-            QDialog#tabColorChooser QPushButton { padding: 0; margin: 0; }
-            QPushButton#chooserCancel, QPushButton#chooserSelect {
-                color: white; background: #38383c; border: none; border-radius: 9px;
-                font-size: 18px; font-weight: bold;
-            }
-            QPushButton#chooserSelect { background: #3584e4; }
-            QPushButton#chooserCancel:hover { background: #48484c; }
-            QPushButton#chooserSelect:hover { background: #4992e8; }
-        """)
         self.selected_color = QColor(initial)
+        self.custom_colors = list(custom_colors if custom_colors is not None else CUSTOM_TAB_COLORS)
+        self.swatches = []
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 8, 10, 10)
-        layout.setSpacing(12)
-        header = QHBoxLayout()
-        header.setSpacing(8)
-        cancel = QPushButton("Cancel")
-        cancel.setObjectName("chooserCancel")
-        cancel.setFixedSize(96, 34)
-        cancel.clicked.connect(self.reject)
-        header.addWidget(cancel)
-        title = QLabel("Tab Background Color")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setStyleSheet("font-weight: bold;")
-        header.addWidget(title, 1)
-        select = QPushButton("Select")
-        select.setObjectName("chooserSelect")
-        select.setFixedSize(96, 34)
-        select.setDefault(True)
-        select.clicked.connect(self.accept)
-        header.addWidget(select)
-        layout.addLayout(header)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
         grid = QGridLayout()
         grid.setHorizontalSpacing(4)
         grid.setVerticalSpacing(2)
-        self.swatches = []
         palette = tab_color_palette()
         for row, colors in enumerate(palette):
             for column, value in enumerate(colors):
@@ -89,28 +59,27 @@ class TabColorDialog(QDialog):
                 grid.addWidget(button, row, column)
         layout.addLayout(grid)
         layout.addWidget(QLabel("Custom"))
-        custom_row = QHBoxLayout()
+        custom_row = QGridLayout()
+        self.custom_grid = custom_row
         custom_row.setSpacing(4)
         custom = QPushButton("+")
         custom.setAccessibleName("Add custom color")
-        custom.setFixedSize(48, 34)
-        custom.setStyleSheet("QPushButton { background: #38383c; color: white; border: none; border-top-left-radius: 10px; border-bottom-left-radius: 10px; font-size: 28px; }")
+        custom.setFixedSize(36, 25)
+        custom.setStyleSheet("QPushButton { background: #38383c; color: white; border: none; border-top-left-radius: 10px; border-bottom-left-radius: 10px; font-size: 21px; }")
         custom.clicked.connect(self.custom_color)
-        custom_row.addWidget(custom)
+        custom_row.addWidget(custom, 0, 0)
         self.custom_swatches = []
-        for value in ("#141414", "#f6f5f4", "#e5e5e5", "#c0c0c0"):
+        for position, value in enumerate(self.custom_colors, 1):
             button = self.make_swatch(value)
             self.custom_swatches.append(button)
-            custom_row.addWidget(button)
-        self.custom_swatches[-1].setProperty("roundedRight", True)
-        custom_row.addStretch()
+            custom_row.addWidget(button, position // 9, position % 9)
+        if self.custom_swatches:
+            self.custom_swatches[-1].setProperty("roundedRight", True)
         layout.addLayout(custom_row)
         self.select_color(initial)
-        self.setFixedSize(self.sizeHint())
-
     def make_swatch(self, value):
         button = QPushButton()
-        button.setFixedSize(48, 32)
+        button.setFixedSize(36, 24)
         button.setCheckable(True)
         button.setAutoDefault(False)
         button.setToolTip(value)
@@ -123,11 +92,13 @@ class TabColorDialog(QDialog):
     def select_color(self, color):
         self.selected_color = QColor(color)
         value = self.selected_color.name()
-        # An arbitrary existing color remains visible and selectable in Custom.
+        # Keep every added color available instead of replacing an earlier custom color.
         if value not in [b.property("swatchColor") for b in self.swatches]:
-            self.custom_swatches[0].setProperty("swatchColor", value)
-            self.custom_swatches[0].setToolTip(value)
-            self.custom_swatches[0].setAccessibleName("Choose color " + value)
+            self.custom_colors.append(value)
+            button = self.make_swatch(value)
+            self.custom_swatches.append(button)
+            position = len(self.custom_swatches)
+            self.custom_grid.addWidget(button, position // 9, position % 9)
         selected_once = False
         for button in self.swatches:
             swatch = button.property("swatchColor")
@@ -135,7 +106,7 @@ class TabColorDialog(QDialog):
             selected_once |= selected
             button.setChecked(selected)
             button.setText("✓" if selected else "")
-            ink = "#202020" if QColor(swatch).lightness() > 150 else "#ffffff"
+            ink = tab_foreground(swatch)
             corners = "border-radius: 0;"
             if button.property("roundedTop"):
                 corners += "border-top-left-radius: 10px; border-top-right-radius: 10px;"
@@ -145,17 +116,57 @@ class TabColorDialog(QDialog):
                 corners += "border-top-right-radius: 10px; border-bottom-right-radius: 10px;"
             button.setStyleSheet(f"QPushButton {{ background: {swatch}; color: {ink}; border: none; {corners} font-size: 20px; }} QPushButton:focus {{ border: 2px solid {ink}; }}")
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton and event.position().y() < 48:
-            if self.windowHandle():
-                self.windowHandle().startSystemMove()
-        super().mousePressEvent(event)
-
     def custom_color(self):
         color = QColorDialog.getColor(self.selected_color, self, "Custom Tab Color",
                                      QColorDialog.ColorDialogOption.DontUseNativeDialog)
         if color.isValid():
             self.select_color(color)
+
+
+class TabColorDialog(QDialog):
+    def __init__(self, initial, parent=None, inactive=None, active_custom=None, inactive_custom=None):
+        super().__init__(parent)
+        self.setWindowTitle("Tab Colors")
+        self.setObjectName("tabColorChooser")
+        self.setStyleSheet("""
+            QDialog#tabColorChooser { background: #e8e8e8; }
+            QDialog#tabColorChooser QLabel { color: #202020; background: transparent; font-size: 14px; }
+            QDialog#tabColorChooser QPushButton { padding: 0; margin: 0; }
+        """)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(6)
+        palettes = QHBoxLayout()
+        palettes.setSpacing(12)
+        self.active_palette = TabColorPalette(initial, active_custom, self)
+        self.inactive_palette = None
+        for label, palette in [("Active Tab Color", self.active_palette)]:
+            column = QVBoxLayout()
+            column.setSpacing(5)
+            column.addWidget(QLabel(label))
+            column.addWidget(palette)
+            column.addStretch()
+            palettes.addLayout(column)
+        if inactive is not None:
+            self.inactive_palette = TabColorPalette(inactive, inactive_custom, self)
+            column = QVBoxLayout()
+            column.setSpacing(5)
+            column.addWidget(QLabel("Inactive Tab Color"))
+            column.addWidget(self.inactive_palette)
+            column.addStretch()
+            palettes.addLayout(column)
+        layout.addLayout(palettes)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
+        buttons.rejected.connect(self.reject)
+        select = buttons.addButton("Select", QDialogButtonBox.ButtonRole.AcceptRole)
+        select.setDefault(True)
+        buttons.accepted.connect(self.accept)
+        layout.addWidget(buttons)
+        self.layout().setSizeConstraint(QVBoxLayout.SizeConstraint.SetFixedSize)
+
+    @property
+    def selected_color(self):
+        return self.active_palette.selected_color
 
 
 def choose_editor_color(initial, parent):
@@ -341,6 +352,9 @@ class EnhancedEditor(Editor):
         self.language_name = "Plain Text"
         self.language_override = None
         self.tab_color = None
+        self.inactive_tab_color = None
+        self.active_custom_colors = list(CUSTOM_TAB_COLORS)
+        self.inactive_custom_colors = list(CUSTOM_TAB_COLORS)
         self.syntax_lexer = None
         self.ignored_words = set()
         self.misspellings = []
@@ -508,6 +522,18 @@ class EnhancedEditor(Editor):
             encoded_offset += len(line.encode("utf-8"))
 
 
+def tab_foreground(background):
+    channels = QColor(background).getRgbF()[:3]
+    linear = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
+    luminance = sum(c * weight for c, weight in zip(linear, (0.2126, 0.7152, 0.0722)))
+    return "#000000" if luminance > 0.179 else "#ffffff"
+
+
+def tab_background(editor, options, active):
+    color = editor.tab_color if active else editor.inactive_tab_color
+    return color or options["active_color" if active else "inactive_color"]
+
+
 class ColorTabs(Tabs):
     def __init__(self, window):
         super().__init__()
@@ -526,14 +552,13 @@ class ColorTabs(Tabs):
             rect = self.tabRect(index).adjusted(1, 3, -1, 0)
             editor = self.window.tabs.widget(index)
             active = index == self.currentIndex()
-            color = editor.tab_color or self.window.options["active_color" if active else "inactive_color"]
+            color = tab_background(editor, self.window.options, active)
             painter.setBrush(QColor(color))
             painter.setPen(QPen(QColor("#bcbcbc")))
             painter.drawRoundedRect(QRectF(rect), 5, 5)
             if active:
                 painter.fillRect(rect.left(), rect.bottom() - 2, rect.width(), 3, QColor("#3584e4"))
-            luminance = QColor(color).lightness()
-            painter.setPen(QColor("#202020" if luminance > 115 else "#ffffff"))
+            painter.setPen(QColor(tab_foreground(color)))
             text_rect = rect.adjusted(16, 0, -62, -3)
             label = painter.fontMetrics().elidedText(self.tabText(index), Qt.TextElideMode.ElideRight, text_rect.width())
             painter.drawText(text_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, label)
@@ -869,8 +894,8 @@ class AppWindow(Window):
                 document = self.tabs.widget(index)
                 if not hasattr(document, "pin_button"):
                     continue
-                background = document.tab_color or self.options["active_color" if index == self.tabs.currentIndex() else "inactive_color"]
-                foreground = "#333" if QColor(background).lightness() > 115 else "#fff"
+                background = tab_background(document, self.options, index == self.tabs.currentIndex())
+                foreground = tab_foreground(background)
                 document.pin_button.setIcon(tab_icon("pin-filled" if document.pinned else "pin", foreground))
                 document.close_button.setIcon(tab_icon("close", foreground))
         self.schedule_recovery()
@@ -886,7 +911,9 @@ class AppWindow(Window):
                     disk=base64.b64encode(editor.disk_bytes).decode() if editor.disk_bytes is not None else None,
                     cursor=list(editor.getCursorPosition()), selection=list(editor.getSelection()),
                     scroll=editor.firstVisibleLine(), horizontal=editor.SendScintilla(editor.SCI_GETXOFFSET),
-                    pinned=editor.pinned, color=editor.tab_color, language=editor.language_override,
+                    pinned=editor.pinned, color=editor.tab_color, inactive_color=editor.inactive_tab_color,
+                    active_custom_colors=editor.active_custom_colors, inactive_custom_colors=editor.inactive_custom_colors,
+                    language=editor.language_override,
                     tab_width=editor.tabWidth(), spaces=editor.insert_spaces, eol=editor.eolMode().value,
                     ignored_words=sorted(editor.ignored_words))
 
@@ -977,6 +1004,13 @@ class AppWindow(Window):
         editor.SendScintilla(editor.SCI_EMPTYUNDOBUFFER)
         editor.setModified(bool(record.get("modified")))
         editor.tab_color = record.get("color") if QColor(record.get("color") or "").isValid() else None
+        # Legacy records used one explicit color for both states.
+        inactive = record.get("inactive_color", editor.tab_color)
+        editor.inactive_tab_color = inactive if QColor(inactive or "").isValid() else None
+        for key in ("active_custom_colors", "inactive_custom_colors"):
+            values = record.get(key, list(CUSTOM_TAB_COLORS))
+            setattr(editor, key, [QColor(value).name() for value in values
+                                 if isinstance(value, str) and QColor(value).isValid()])
         editor.language_override = record.get("language")
         editor.ignored_words = set(record.get("ignored_words", []))
         editor.setTabWidth(record.get("tab_width", self.options["tab_width"]))
@@ -1424,14 +1458,21 @@ class AppWindow(Window):
 
     def choose_tab_color(self, index):
         editor = self.tabs.widget(index)
-        color = choose_editor_color(QColor(editor.tab_color or self.options["active_color"]), self)
-        if color.isValid():
-            editor.tab_color = color.name()
+        dialog = TabColorDialog(tab_background(editor, self.options, True), self,
+                                inactive=tab_background(editor, self.options, False),
+                                active_custom=editor.active_custom_colors,
+                                inactive_custom=editor.inactive_custom_colors)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            editor.tab_color = dialog.active_palette.selected_color.name()
+            editor.inactive_tab_color = dialog.inactive_palette.selected_color.name()
+            editor.active_custom_colors = list(dialog.active_palette.custom_colors)
+            editor.inactive_custom_colors = list(dialog.inactive_palette.custom_colors)
             self.refresh()
             self.persist()
 
     def reset_tab_color(self, index):
-        self.tabs.widget(index).tab_color = None
+        editor = self.tabs.widget(index)
+        editor.tab_color = editor.inactive_tab_color = None
         self.refresh()
         self.persist()
 
