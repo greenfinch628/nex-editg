@@ -17,3 +17,6 @@ fb261628744a9852cdf401ed3ef0f4e445ba655c9cd3c807f10605b5cba3b913  ubuntu-26.04/n
 19696c725d777df10db979da4efd287431de080f968376cab4e994f177230330  ubuntu-26.04/nex-editg_0.1.4-1ubuntu26.04.1_amd64.deb
 8faba0d6698be2ca2b8fad665eda1e031e364acc30b228443d22a1d451c96b0c  ubuntu-26.04/nex-editg_0.1.5-1ubuntu26.04.1_amd64.deb
 b529b35fba1a5820d270940064767e78caf4f25aaf062eca8a4f18932f279d5c  ubuntu-26.04/nex-editg_0.1.6-1ubuntu26.04.1_amd64.deb
+be4926c5179ede3dfbdd9d16f107ca402affddadd70dbec5b27299aebdb4ba44  fedora-44/nex-editg-0.1.7-1.fc44.x86_64.rpm
+e9f3dbfce955eb3f4bceaa862dc981ba981378f441cf30e56d5e2b28c47bd654  ubuntu-26.04/nex-editg_0.1.7-1ubuntu26.04.1_amd64.deb
+b5389746f438b12d00e58c0e6e064e5d14d5b19d7a2952ba178c271315b8b643  source/nex-editg-0.1.7-source.tar.gz
