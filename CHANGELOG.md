@@ -1,3 +1,7 @@
+# nex-editg - 0.1.9
+
+- 2026-11-05T14:43:57Z — Changed: Use the supplied nex-editg icon in application launchers, application windows, and Linux packages; associate windows with the installed nex-editg desktop entry.
+
 # nex-editg - 0.1.8
 
 - 2026-11-05T14:14:13Z — Changed: Separate Preferences tab defaults from window-wide and individual active/inactive tab colors; preserve overrides through recovery and workspace restoration without recoloring open tabs when defaults change.

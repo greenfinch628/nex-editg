@@ -138,6 +138,6 @@ Related projects: [nex-editm for macOS](https://github.com/greenfinch628/nex-edi
 
 ## Binary packages
 
-RPM packages for Fedora 44 and DEB packages for Ubuntu 26.04 are in `packages/`. See [packaging instructions](packaging/README.md). Version: 0.1.8.
+RPM packages for Fedora 44 and DEB packages for Ubuntu 26.04 are in `packages/`. See [packaging instructions](packaging/README.md). Version: 0.1.9.
 
 Right-click the sidebar folder title and choose **Close Folder** to leave the sidebar visible and empty. The Open menu uses the same action. Folder sessions and unsaved drafts remain available when the folder is reopened.
