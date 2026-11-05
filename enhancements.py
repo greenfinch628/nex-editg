@@ -535,7 +535,7 @@ def tab_foreground(background):
 
 def tab_background(editor, options, active):
     color = editor.tab_color if active else editor.inactive_tab_color
-    return color or options["active_color" if active else "inactive_color"]
+    return color or getattr(editor, "resolved_tab_defaults", (options["active_color"], options["inactive_color"]))[0 if active else 1]
 
 
 class ColorTabs(Tabs):
@@ -636,6 +636,7 @@ class Preferences(QDialog):
                 welcome.setChecked(self.values["show_welcome"])
                 self.fields["show_welcome"] = welcome
                 form.addRow(welcome)
+                form.addRow(QLabel("Tab Default Colors"))
                 for key, label in [("active_color", "Active tab color"), ("inactive_color", "Inactive tab color")]:
                     button = QPushButton(self.values[key])
                     self.style_color_button(button, self.values[key])
@@ -701,6 +702,7 @@ class AppWindow(Window):
         self.identity = identity or uuid.uuid4().hex
         self.options = dict(store.settings)
         self.loading = True
+        self.shared_tab_colors = None
         self.recovery_error = None
         super().__init__()
         self.setWindowTitle("nex-editg")
@@ -855,6 +857,9 @@ class AppWindow(Window):
         self.schedule_recovery()
 
     def add_editor(self, editor):
+        if not hasattr(editor, "resolved_tab_defaults"):
+            editor.tab_color_mode = "shared" if self.shared_tab_colors else "default"
+            editor.resolved_tab_defaults = self.shared_tab_colors or (self.options["active_color"], self.options["inactive_color"])
         super().add_editor(editor)
         index = self.tabs.indexOf(editor)
         bar = self.tabs.tabBar()
@@ -915,14 +920,14 @@ class AppWindow(Window):
                     disk=base64.b64encode(editor.disk_bytes).decode() if editor.disk_bytes is not None else None,
                     cursor=list(editor.getCursorPosition()), selection=list(editor.getSelection()),
                     scroll=editor.firstVisibleLine(), horizontal=editor.SendScintilla(editor.SCI_GETXOFFSET),
-                    pinned=editor.pinned, color=editor.tab_color, inactive_color=editor.inactive_tab_color,
+                    pinned=editor.pinned, tab_color_mode=getattr(editor, "tab_color_mode", "default"), color=editor.tab_color, inactive_color=editor.inactive_tab_color,
                     active_custom_colors=editor.active_custom_colors, inactive_custom_colors=editor.inactive_custom_colors,
                     language=editor.language_override,
                     tab_width=editor.tabWidth(), spaces=editor.insert_spaces, eol=editor.eolMode().value,
                     ignored_words=sorted(editor.ignored_words))
 
     def snapshot(self):
-        return dict(version=1, identity=self.identity,
+        return dict(version=1, identity=self.identity, shared_tab_colors=self.shared_tab_colors,
                     documents=[self.document_record(self.tabs.widget(i)) for i in range(self.tabs.count())],
                     active=self.tabs.currentIndex(), workspace=str(self.workspace) if self.workspace else None,
                     sidebar=self.sidebar.isVisible(), splitter=self.splitter.sizes(),
@@ -1011,6 +1016,8 @@ class AppWindow(Window):
         # Legacy records used one explicit color for both states.
         inactive = record.get("inactive_color", editor.tab_color)
         editor.inactive_tab_color = inactive if QColor(inactive or "").isValid() else None
+        editor.tab_color_mode = record.get("tab_color_mode", "default")
+        editor.resolved_tab_defaults = (self.shared_tab_colors if editor.tab_color_mode == "shared" else None) or (self.options["active_color"], self.options["inactive_color"])
         for key in ("active_custom_colors", "inactive_custom_colors"):
             values = record.get(key, list(CUSTOM_TAB_COLORS))
             setattr(editor, key, [QColor(value).name() for value in values
@@ -1038,6 +1045,8 @@ class AppWindow(Window):
         old = [self.tabs.widget(i) for i in range(self.tabs.count())]
         old_loading = self.loading
         self.loading = True
+        colors = record.get("shared_tab_colors")
+        self.shared_tab_colors = tuple(colors) if isinstance(colors, (list, tuple)) and len(colors) == 2 and all(isinstance(c, str) and QColor(c).isValid() for c in colors) else None
         try:
             for document in record["documents"]:
                 self.restore_editor(document)
@@ -1284,8 +1293,10 @@ class AppWindow(Window):
         document = self.tabs.widget(index)
         menu.addAction("Rename…", lambda: self.rename_tab(document))
         menu.addSeparator()
-        menu.addAction("Tab Color…", lambda: self.choose_tab_color(index))
+        menu.addAction("Tab Color", lambda: self.choose_tab_color(index))
+        menu.addAction("Tab Color For All", lambda: self.choose_tab_color(index, all_tabs=True))
         menu.addAction("Use Default Color", lambda: self.reset_tab_color(index))
+        menu.addAction("Use Default Color For All", lambda: self.reset_tab_color(index, all_tabs=True))
         menu.exec(self.tabs.tabBar().mapToGlobal(point))
 
     def sidebar_menu(self, point):
@@ -1460,23 +1471,35 @@ class AppWindow(Window):
             if changed:
                 atomic_json(path, record)
 
-    def choose_tab_color(self, index):
+    def choose_tab_color(self, index, all_tabs=False):
         editor = self.tabs.widget(index)
         dialog = TabColorDialog(tab_background(editor, self.options, True), self,
                                 inactive=tab_background(editor, self.options, False),
                                 active_custom=editor.active_custom_colors,
                                 inactive_custom=editor.inactive_custom_colors)
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            editor.tab_color = dialog.active_palette.selected_color.name()
-            editor.inactive_tab_color = dialog.inactive_palette.selected_color.name()
-            editor.active_custom_colors = list(dialog.active_palette.custom_colors)
-            editor.inactive_custom_colors = list(dialog.inactive_palette.custom_colors)
+            colors = (dialog.active_palette.selected_color.name(), dialog.inactive_palette.selected_color.name())
+            if all_tabs:
+                self.shared_tab_colors = colors
+            targets = [self.tabs.widget(i) for i in range(self.tabs.count())] if all_tabs else [editor]
+            for target in targets:
+                target.tab_color_mode = "shared" if all_tabs else "custom"
+                target.tab_color, target.inactive_tab_color = (None, None) if all_tabs else colors
+                if all_tabs:
+                    target.resolved_tab_defaults = colors
+                target.active_custom_colors = list(dialog.active_palette.custom_colors)
+                target.inactive_custom_colors = list(dialog.inactive_palette.custom_colors)
             self.refresh()
             self.persist()
 
-    def reset_tab_color(self, index):
-        editor = self.tabs.widget(index)
-        editor.tab_color = editor.inactive_tab_color = None
+    def reset_tab_color(self, index, all_tabs=False):
+        if all_tabs:
+            self.shared_tab_colors = None
+        targets = [self.tabs.widget(i) for i in range(self.tabs.count())] if all_tabs else [self.tabs.widget(index)]
+        for editor in targets:
+            editor.tab_color_mode = "default"
+            editor.tab_color = editor.inactive_tab_color = None
+            editor.resolved_tab_defaults = (self.options["active_color"], self.options["inactive_color"])
         self.refresh()
         self.persist()
 

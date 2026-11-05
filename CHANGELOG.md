@@ -1,3 +1,7 @@
+# nex-editg - 0.1.8
+
+- 2026-11-05T14:14:13Z — Changed: Separate Preferences tab defaults from window-wide and individual active/inactive tab colors; preserve overrides through recovery and workspace restoration without recoloring open tabs when defaults change.
+
 # nex-editg - 0.1.7
 
 - 2026-11-04T22:59:22Z — Changed: Add wider spacing and a subtle vertical divider between the active and inactive tab color palettes.

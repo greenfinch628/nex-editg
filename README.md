@@ -94,7 +94,7 @@ Git badges occupy a persistent column at the far right: **M** modified, **A** ad
 
 Preferences contains Fonts, Editing, Appearance and Spelling. Bottom controls change the current document's language, tab width, spaces and spelling; Editing preferences set defaults for new documents. Choosing spaces affects new Tab insertions, not existing text.
 
-Right-click a tab for **Tab Color…** or **Use Default Color**. Appearance sets the default active/inactive colors. The color selector offers a grid of lighter-to-stronger shades and a **Custom color…** button. Saved tab colors survive recovery.
+Preferences → Appearance → **Tab Default Colors** sets active/inactive defaults for new tabs without recoloring open tabs. Right-click a tab for **Tab Color**, **Tab Color For All**, **Use Default Color**, or **Use Default Color For All**. The For All commands affect the current window and future tabs in that workspace; resetting one tab uses the current Preferences even with a shared color active. Resetting all clears both individual and shared overrides. The compact active/inactive palettes keep independent custom colors and apply only on Select. Defaults and overrides survive recovery and workspace restoration; older sessions retain their custom colors.
 
 Welcome opens pinned by default. Unpinning it closes the tab and unchecks **Preferences → Appearance → Show Welcome on startup**. Unchecking that preference also removes Welcome and prevents session recovery from reopening it. Welcome remains editable; dismissed edits are retained in closed-tab recovery. Other documents are unaffected.
 
@@ -138,6 +138,6 @@ Related projects: [nex-editm for macOS](https://github.com/greenfinch628/nex-edi
 
 ## Binary packages
 
-RPM packages for Fedora 44 and DEB packages for Ubuntu 26.04 are in `packages/`. See [packaging instructions](packaging/README.md). Version: 0.1.0.
+RPM packages for Fedora 44 and DEB packages for Ubuntu 26.04 are in `packages/`. See [packaging instructions](packaging/README.md). Version: 0.1.8.
 
 Right-click the sidebar folder title and choose **Close Folder** to leave the sidebar visible and empty. The Open menu uses the same action. Folder sessions and unsaved drafts remain available when the folder is reopened.
