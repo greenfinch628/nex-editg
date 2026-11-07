@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
-"""Run on Fedora 44 for RPM or Ubuntu 26.04 for DEB (Python 3.14)."""
+"""Run on Fedora 44/45 for RPM or Ubuntu 26.04 for DEB."""
 import argparse, pathlib, shutil, subprocess, sys
 p = argparse.ArgumentParser()
 p.add_argument('format', choices=['rpm', 'deb'])
 a = p.parse_args()
 root = pathlib.Path(__file__).resolve().parents[1]
 v = (root/'VERSION').read_text().strip()
+fedora = ''
+if a.format == 'rpm':
+    import platform
+    os_release = platform.freedesktop_os_release()
+    fedora = os_release.get('VERSION_ID', '')
+    expected_python = {'44': (3, 14), '45': (3, 15)}
+    if os_release.get('ID') != 'fedora' or fedora not in expected_python or sys.version_info[:2] != expected_python[fedora]:
+        p.error('RPM builds require Fedora 44/Python 3.14 or Fedora 45/Python 3.15')
+    if platform.machine() != 'x86_64':
+        p.error('RPM builds require x86_64')
+    python_minor = expected_python[fedora][1]
 b = root/'build/packages'/a.format
 if b.exists(): shutil.rmtree(b)
 stage = b/'stage'
@@ -19,7 +30,7 @@ for name in ['icons', 'Examples']:
     shutil.copytree(root/name, app/name)
 for src, dst in [('packaging/nex-editg','usr/bin/nex-editg'), ('packaging/nex-editg.desktop','usr/share/applications/com.greenfinch628.nex-editg.desktop'), ('icons/app-ned.svg','usr/share/icons/hicolor/scalable/apps/com.greenfinch628.nex-editg.svg')]:
     dest=stage/dst; dest.parent.mkdir(parents=True, exist_ok=True); shutil.copy2(root/src,dest)
-out=root/'packages'/('fedora-44' if a.format=='rpm' else 'ubuntu-26.04')
+out=root/'packages'/(f'fedora-{fedora}' if a.format=='rpm' else 'ubuntu-26.04')
 out.mkdir(parents=True,exist_ok=True)
 if a.format=='deb':
     (stage/'DEBIAN').mkdir()
@@ -45,7 +56,7 @@ Summary: Text editor with workspace sessions and recovery
 License: LicenseRef-No-License
 URL: https://github.com/greenfinch628/nex-editg
 AutoReqProv: no
-Requires: python3 >= 3.14, python3 < 3.15, enchant2, hunspell-en-US
+Requires: python3 >= 3.{python_minor}, python3 < 3.{python_minor + 1}, enchant2, hunspell-en-US
 Requires: libglvnd-glx, libglvnd-egl, libglvnd-opengl, dbus-libs, fontconfig, libxkbcommon, libxkbcommon-x11, xcb-util-cursor, xcb-util-wm, xcb-util-image, xcb-util-keysyms, xcb-util-renderutil, libxcb, libSM, libICE, glib2
 %description
 Text editor with private pinned Qt and QScintilla dependencies.

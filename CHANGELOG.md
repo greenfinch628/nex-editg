@@ -1,5 +1,6 @@
 # nex-editg - 0.1.10
 
+- 2026-11-07T17:26:58Z — Added: Fedora 45 x86_64 packaging with Python 3.15 and unchanged dependency pins.
 - 2026-11-07T00:36:38Z — Added: Per-tab Word Wrap checkbox after Spelling, with independent settings preserved through session restoration; new tabs default to wrapping disabled.
 
 # nex-editg - 0.1.9

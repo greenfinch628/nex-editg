@@ -15,3 +15,7 @@ license; this packaging does not assign one. Review licensing before wider
 redistribution. Install with dnf install ./package.rpm or apt install ./package.deb.
 These are unsigned local builds. Ubuntu 24.04 and other Python minor versions
 are unsupported. The shared application data path is preserved.
+
+Fedora 45 x86_64 uses Python 3.15 with the same dependency pins. On Scopuli,
+run `~/bin/Applications-scripts/createNexEditgRpm.sh 45` to build in Podman
+without upgrading the Fedora 44 host. Output is in `packages/fedora-45`.
