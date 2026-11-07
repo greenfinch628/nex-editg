@@ -5,4 +5,4 @@
 - Installed version is 0.1.10; installed editor.py and enhancements.py match the release source. RPM file verification passed.
 - Python syntax check passed for the Word Wrap implementation. No comprehensive test suite or additional package build was run.
 - Generated build output, prototype virtual environment, and Python cache removed after installation. Source development tools and previous release packages retained.
-- Ubuntu package remains at 0.1.8; no 0.1.10 DEB was built.
+- Ubuntu 26.04 amd64 DEB built by the user. Package metadata reports 0.1.10-1ubuntu26.04.1; bundled VERSION, editor.py, enhancements.py, and git_browser.py match the release source. Ubuntu installation and runtime testing were not performed in this session.
