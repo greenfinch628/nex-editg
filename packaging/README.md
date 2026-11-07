@@ -1,6 +1,6 @@
 # Linux packages
 
-Version 0.1.9 adopts the new nex-editg application icon. Build RPMs on Fedora 44 x86_64
+Version 0.1.10 adds per-tab Word Wrap with session restoration. Build RPMs on Fedora 44 x86_64
 and DEBs on Ubuntu 26.04 amd64, using Python 3.14 and pip:
 
     python3 packaging/build.py rpm

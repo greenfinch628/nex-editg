@@ -17,3 +17,5 @@ Verify with `sha256sum -c SHA256SUMS`. See ../packaging/README.md for rebuilds.
 Validation results: [VALIDATION-0.1.8.md](VALIDATION-0.1.8.md).
 
 Fedora icon update: `fedora-44/nex-editg-0.1.9-1.fc44.x86_64.rpm`. Source: `source/nex-editg-0.1.9-source.tar.gz`. Version 0.1.9 uses the new application icon; tests were skipped as requested. Ubuntu packages remain at 0.1.8.
+
+Fedora Word Wrap update: `fedora-44/nex-editg-0.1.10-1.fc44.x86_64.rpm`. Source: `source/nex-editg-0.1.10-source.tar.gz`. Per-tab wrapping is preserved with sessions. See [VALIDATION-0.1.10.md](VALIDATION-0.1.10.md). Ubuntu packages remain at 0.1.8.

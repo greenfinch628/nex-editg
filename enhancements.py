@@ -227,7 +227,7 @@ def validate_document(record):
         raise ValueError("Invalid recovered document; the original snapshot has been preserved.")
     if record.get("path") is not None and not isinstance(record["path"], str):
         raise ValueError("Invalid recovered document path.")
-    for key in ("modified", "pinned", "spaces"):
+    for key in ("modified", "pinned", "spaces", "word_wrap"):
         if key in record and not isinstance(record[key], bool):
             raise ValueError("Invalid recovered document option.")
     if record.get("tab_width", 2) not in (2, 4, 8) or record.get("eol", 2) not in (0, 1, 2):
@@ -742,6 +742,9 @@ class AppWindow(Window):
         status = self.findChild(QWidget, "status")
         status.layout().insertWidget(3, self.spaces_control)
         status.layout().insertWidget(4, self.spell_control)
+        self.word_wrap_control = QCheckBox("Word Wrap")
+        self.word_wrap_control.toggled.connect(self.set_word_wrap)
+        status.layout().insertWidget(5, self.word_wrap_control)
         old_language = self.language
         self.language = QToolButton()
         self.language.setStyleSheet("QToolButton { border: 0; background: transparent; padding: 2px 8px; }")
@@ -894,6 +897,9 @@ class AppWindow(Window):
             self.spaces_control.blockSignals(True)
             self.spaces_control.setChecked(editor.insert_spaces)
             self.spaces_control.blockSignals(False)
+            self.word_wrap_control.blockSignals(True)
+            self.word_wrap_control.setChecked(editor.wrapMode() == editor.WrapMode.WrapWord)
+            self.word_wrap_control.blockSignals(False)
             self.language.blockSignals(True)
             self.language.setText(editor.language_name)
             self.language.setToolTip("Detected: " + editor.language_name)
@@ -923,6 +929,7 @@ class AppWindow(Window):
                     pinned=editor.pinned, tab_color_mode=getattr(editor, "tab_color_mode", "default"), color=editor.tab_color, inactive_color=editor.inactive_tab_color,
                     active_custom_colors=editor.active_custom_colors, inactive_custom_colors=editor.inactive_custom_colors,
                     language=editor.language_override,
+                    word_wrap=editor.wrapMode() == editor.WrapMode.WrapWord,
                     tab_width=editor.tabWidth(), spaces=editor.insert_spaces, eol=editor.eolMode().value,
                     ignored_words=sorted(editor.ignored_words))
 
@@ -1026,6 +1033,7 @@ class AppWindow(Window):
         editor.ignored_words = set(record.get("ignored_words", []))
         editor.setTabWidth(record.get("tab_width", self.options["tab_width"]))
         editor.insert_spaces = record.get("spaces", self.options["spaces"])
+        editor.setWrapMode(editor.WrapMode.WrapWord if record.get("word_wrap", False) else editor.WrapMode.WrapNone)
         editor.configure_language()
         self.add_editor(editor)
         if record.get("pinned"):
@@ -1264,6 +1272,12 @@ class AppWindow(Window):
     def change_tab_width(self, index):
         super().change_tab_width(index)
         self.schedule_recovery()
+
+    def set_word_wrap(self, enabled):
+        editor = self.editor()
+        if editor is not None:
+            editor.setWrapMode(editor.WrapMode.WrapWord if enabled else editor.WrapMode.WrapNone)
+            self.schedule_recovery()
 
     def set_spelling(self, enabled):
         values = dict(self.options, spell=enabled)

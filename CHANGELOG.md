@@ -1,3 +1,7 @@
+# nex-editg - 0.1.10
+
+- 2026-11-07T00:36:38Z — Added: Per-tab Word Wrap checkbox after Spelling, with independent settings preserved through session restoration; new tabs default to wrapping disabled.
+
 # nex-editg - 0.1.9
 
 - 2026-11-05T14:43:57Z — Changed: Use the supplied nex-editg icon in application launchers, application windows, and Linux packages; associate windows with the installed nex-editg desktop entry.
